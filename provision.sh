@@ -148,6 +148,27 @@ echo "-- Install MySQL --"
 sudo apt-get install -y --force-yes mysql-server
 Update
 
+echo "-- Enable access from guest machine --"
+mysql -ulocalhost -uroot -proot -e "SHOW DATABASES;"
+mysql -ulocalhost -uroot -proot -e "CREATE USER 'guest_user'@'localhost' IDENTIFIED BY 'guest_password'"
+mysql -ulocalhost -uroot -proot -e "GRANT ALL PRIVILEGES ON *.* TO 'guest_user'@'localhost' WITH GRANT OPTION"
+mysql -ulocalhost -uroot -proot -e "CREATE USER 'guest_user'@'%' IDENTIFIED BY 'guest_password'"
+mysql -ulocalhost -uroot -proot -e "GRANT ALL PRIVILEGES ON *.* TO 'guest_user'@'%' WITH GRANT OPTION"
+mysql -ulocalhost -uroot -proot -e "FLUSH PRIVILEGES"
+sudo sed -i 's#skip-external-locking#\# skip-external-locking#g' /etc/mysql/my.cnf
+sudo sed -i 's#bind-address#\# bind-address = 0.0.0.0 \##g' /etc/mysql/my.cnf
+sudo service mysql reload
+
+
+# skip-external-locking
+#
+# Instead of skip-networking the default is now to listen only on
+# localhost which is more compatible and is not less secure.
+#bind-address           = 127.0.0.1
+bind-address = 0.0.0.0
+
+
+
 
 echo ""
 echo ""
